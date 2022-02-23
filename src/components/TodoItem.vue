@@ -6,9 +6,18 @@
         :checked="todo.done"
         @change="handleCheck(todo.id)"
       />
-      <span>{{ todo.title }}</span>
+      <span v-show="!todo.isEdit">{{ todo.title }} </span>
+      <input
+        v-show="todo.isEdit"
+        type="text"
+        :value="todo.title"
+        @blur="handleBlur(todo, $event)"
+      />
     </label>
-    <button class="btn btn-danger" @click="handleDelete(todo.id)">delete</button>
+    <button class="btn btn-danger" @click="handleDelete(todo.id)">
+      Remove
+    </button>
+    <button class="btn btn-edit" @click="handleEdit(todo)">Edit</button>
   </li>
 </template>
 
@@ -21,25 +30,38 @@ export default {
       required: true,
     },
     checkTodo: {
-      type: Function
-      
+      type: Function,
     },
     deleteTodo: {
       type: Function,
       required: true,
     },
   },
+
   setup(props) {
+    //  tick or untick checkbox
     function handleCheck(id) {
+      // reverse the value of done in todo obj through App.vue
       props.checkTodo(id);
     }
 
+    // remove todo obj through app.vue
     function handleDelete(id) {
-      if (confirm("Are you sure you want to delete?")) 
-      props.deleteTodo(id);
+      // delete
+      if (confirm("Are you sure you want to delete?")) props.deleteTodo(id);
     }
 
-    return { handleCheck, handleDelete };
+    // declare isEdit value
+    function handleEdit(todo) {
+      todo.isEdit = true;
+    }
+
+    // save edited title through user input
+    function handleBlur(todo, e) {
+      todo.isEdit = false;
+      todo.title = e.target.value;
+    }
+    return { handleCheck, handleDelete, handleEdit, handleBlur };
   },
 };
 </script>

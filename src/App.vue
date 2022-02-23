@@ -8,7 +8,11 @@
           :checkTodo="checkTodo"
           :deleteTodo="deleteTodo"
         ></todo-list>
-        <todo-footer></todo-footer>
+        <todo-footer
+          :todos="todos"
+          :checkAllTodo="checkAllTodo"
+          :clearAllTodo="clearAllTodo"
+        ></todo-footer>
       </div>
     </div>
   </div>
@@ -18,7 +22,7 @@
 import TodoHeader from "./components/TodoHeader";
 import TodoList from "./components/TodoList";
 import TodoFooter from "./components/TodoFooter";
-import {  reactive } from "vue";
+import { ref, watch } from "vue";
 
 export default {
   name: "App",
@@ -28,33 +32,55 @@ export default {
     TodoFooter,
   },
   setup() {
-    let todos = reactive([
-      { id: "001", title: "a", done: true },
-      { id: "002", title: "b", done: false },
-      { id: "003", title: "c", done: true },
-    ]);
 
+    // declare todos
+    let todos = ref(JSON.parse(localStorage.getItem("todos")) || []);
+
+    // add
     function addTodo(todoObj) {
-      todos.unshift(todoObj);
+      todos.value.unshift(todoObj);
     }
 
+    //delete
+    function deleteTodo(id) {
+      todos.value = todos.value.filter((todo) => todo.id !== id);
+    }
+
+    function clearAllTodo() {
+      todos.value = todos.value.filter((todo) => {
+        return !todo.done;
+      });
+    }
+
+    //check
     function checkTodo(id) {
-      todos.forEach((todo) => {
+      todos.value.forEach((todo) => {
         if (todo.id === id) todo.done = !todo.done;
       });
     }
 
-    function deleteTodo(id) {
-      console.log(todos)
-		todos = todos.filter( todo => todo.id !== id )
-      console.log(todos)
-      
+    function checkAllTodo(done) {
+      todos.value.forEach((todo) => {
+        todo.done = done;
+      });
     }
+
+    //save data in local storage
+    watch(
+      () => todos.value,
+      function handler(value) {
+        localStorage.setItem("todos", JSON.stringify(value));
+      },
+      { deep: true }
+    );
+
     return {
       todos,
       addTodo,
       checkTodo,
       deleteTodo,
+      checkAllTodo,
+      clearAllTodo,
     };
   },
 };
@@ -85,6 +111,18 @@ body {
   border: 1px solid #bd362f;
 }
 
+.btn-edit {
+  color: #fff;
+  background-color: rgb(2, 181, 252);
+  border: 1px solid rgb(0, 187, 255);
+  margin-right: 5px;
+}
+
+.btn-edit:hover {
+  color: #fff;
+  background-color: skyblue;
+  margin-right: 5px;
+}
 .btn-danger:hover {
   color: #fff;
   background-color: #bd362f;

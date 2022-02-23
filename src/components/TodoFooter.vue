@@ -1,16 +1,67 @@
 <template>
-  <div class="todo-footer">
+  <div class="todo-footer" v-show="total">
     <label>
-      <input type="checkbox" />
+      <!-- <input type="checkbox" :checked="isAll" @change="checkAll"/> -->
+      <input type="checkbox" v-model="isAll" />
     </label>
-    <span> <span>Completed 0</span> / All2 </span>
-    <button class="btn btn-danger">Clear All</button>
+    <span>
+      <span>Completed {{ totalDone }}</span> / All {{ total }}</span
+    >
+    <button class="btn btn-danger" @click="clearAll">Clear selected</button>
   </div>
 </template>
 
 <script>
+import { computed } from "vue";
 export default {
   name: "TodoFooter",
+  props: {
+    todos: {
+      type: Array,
+    },
+    checkAllTodo: {
+      type: Function,
+    },
+    clearAllTodo:{
+      type: Function
+    }
+  },
+  setup(props) {
+    const totalDone = computed(() => {
+      return props.todos.reduce(
+        (pre, current) => pre + (current.done ? 1 : 0),
+        0
+      );
+    });
+
+    const total = computed(() => {
+      return props.todos.length;
+    });
+
+    const isAll = computed({
+      get() {
+        return totalDone.value === total.value && total.value > 0;
+      },
+      set(value) {
+        props.checkAllTodo(value);
+      },
+    });
+    // function checkAll(e){
+    //   props.checkAllTodo(e.target.checked)
+    // }
+
+    function clearAll(){
+      props.clearAllTodo()
+    }
+
+    return {
+      totalDone,
+      total,
+      isAll,
+      // checkAll
+      clearAll
+    };
+  },
 };
 </script>
 

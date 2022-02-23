@@ -17,11 +17,14 @@ export default {
   props: {
     addTodo: {
       type: Function,
-      required: true
+      required: true,
     },
   },
   setup(props) {
+    // receive user input
     let title = ref("");
+
+    // add
     function add() {
       const text = title.value;
       if (!text.trim()) return alert("Please enter something");
